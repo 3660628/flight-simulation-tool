@@ -22,7 +22,7 @@ function varargout = BADA(varargin)
 
 % Edit the above text to modify the response to help BADA
 
-% Last Modified by GUIDE v2.5 29-Jul-2014 03:08:08
+% Last Modified by GUIDE v2.5 03-Dec-2014 00:00:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -193,6 +193,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 option_check = get(handles.popupmenu1,'value');
+model_check = get(handles.flightmodel, 'value');
 switch option_check
        %Latitude/Longitude
     case 1
@@ -235,9 +236,11 @@ switch option_check
         if dist1 < 1000
            set(handles.flight_distance, 'String', dist1);
            num_points = 10;
+           distance = dist1;
         else
            set(handles.flight_distance, 'String', dist2);
            num_points = dist2 * (1/100);
+           distance = dist2;
         end 
             
         [greatcircle_lat, greatcircle_lon] = gcwaypts(lag1,lon1,lag2,lon2,num_points)   %plots the great circle path
@@ -245,34 +248,12 @@ switch option_check
         for i = 1 : num_points
             plot(greatcircle_lon(i),greatcircle_lat(i),'.r','MarkerSize',10);
         end
-
-%3D Sphere with great circle track
         
-%         %Drawing the sphere
-%         figure;
-%         R = 1;
-%         [x1,y1,z1] = sph2cart(lon1,lag1,R);
-%         [x2,y2,z2] = sph2cart(lon2,lag2,R);
-%         p1 = [x1,y1,z1];
-%         p2 = [x2,y2,z2];
-% 
-%         % define orthogonal vectors in plane of great circle
-%         u = p1/R;
-%         w = cross(p1,p2);
-%         v = cross(u,w)/sqrt(sum(w.^2));
-%         omega_0 = acos(sum(p1.*p2));
-% 
-%         % draw line
-%         n_points = 1000; % no. of points in line
-%         omega1 = repmat(linspace(2*pi-omega_0,2*pi,n_points)',1,3); 
-%         u = repmat(u,n_points,1);
-%         v = repmat(v,n_points,1);
-%         c = R*(u.*cos(omega1)+v.*sin(omega1)); % equation for great circle
-%         plot3(c(:,1),c(:,2),c(:,3),'-')
-
         
-         
-         
+        %Calculating flight time
+        %Use model_check to lookup model flight velocity in database
+        %Use t = d / v to calculate time taken
+        flight_time = distance / velocity; %where velocity is from the database
         
          
     case 2  %Airports
@@ -294,7 +275,6 @@ switch option_check
         
         course_angle1 = str2num(get((handles.angle1),'String'));
         course_angle2 = str2num(get((handles.angle2),'String'));
-        
         
         angle_check = get(handles.anglecheck, 'Value');
 
@@ -496,3 +476,44 @@ switch angle_val
         set(handles.angle2,'Visible','On');
 
 end    
+
+
+
+
+
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function flightmodel_Callback(hObject, eventdata, handles)
+% hObject    handle to flightmodel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of flightmodel as text
+%        str2double(get(hObject,'String')) returns contents of flightmodel as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function flightmodel_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to flightmodel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
